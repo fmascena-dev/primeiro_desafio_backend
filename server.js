@@ -1,10 +1,18 @@
 require("dotenv").config();
 const express = require("express");
+const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 let cadastros = [];
+try {
+  const dados = fs.readFileSync("cadastros.json", "utf-8");
+  cadastros = JSON.parse(dados);
+} catch (erro) {
+  cadastros = [];
+}
+
 let proximoId = 1;
 
 app.use(express.json());
@@ -65,6 +73,9 @@ app.post("/cadastros", validarCadastro, (req, res) => {
   };
 
   cadastros.push(novoCadastro);
+
+  fs.writeFileSync("cadastros.json", JSON.stringify(cadastros, null, 2));
+
   res.status(201).json({
     message: "Cadastro criado com sucesso!",
     cadastro: novoCadastro,
